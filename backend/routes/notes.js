@@ -7,8 +7,10 @@ const Notes = require('../models/Notes');
 //get all the notes using: GET "/api/notes/fetchnotes"  login required
 
 router.get('/fetchnotes', fetchuser, async (req, res) => {
+    
     try {
         const notes = await Notes.find({ user: req.user.id });
+
         res.json(notes)
     } catch (error) {
         console.error(error.message);

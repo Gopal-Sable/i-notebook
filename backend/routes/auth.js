@@ -18,15 +18,18 @@ router.post('/createUser', [
   body('email', 'Enter a valid email').isEmail(),
   body('password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
 ], async (req, res) => {
+  let success = false;
   // if there are errors,return Bad requist and the errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    success = false;
     return res.status(400).json({ errors: errors.array() });
   }
   //check whether the user email already exist
   try {
     let user = await User.findOne({ email: req.body.email });
     if (user) {
+      success = false;
       return res.status(400).json({ errors: " sorry email is already exist" })
     }
     //incripting password
@@ -44,9 +47,11 @@ router.post('/createUser', [
       }
     }
     const authtoken = jwt.sign(data, JWT_SECRETE);
-    res.json(authtoken)
+    success = true;
+    res.json({ success, authtoken })
   } catch (error) {
     console.error(error.message);
+    success = false;
     res.status(500).send("internal servaer error")
   }
 })
@@ -58,6 +63,7 @@ router.post('/login', [
   body('email', 'Enter a valid email').isEmail(),
   body('password', 'password can not be blank').exists(),
 ], async (req, res) => {
+  let success = false;
   // if there are errors,return Bad requist and the errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -67,10 +73,12 @@ router.post('/login', [
   try {
     let user = await User.findOne({ email })
     if (!user) {
+      success = false;
       return res.status(400).json({ errors: "please try to login with correct credentials" });
     }
     const passwordCompare = await bcrypt.compare(password, user.password)
     if (!passwordCompare) {
+      success = false;
       return res.status(400).json({ errors: "please try to login with correct credentials" });
     }
     const data = {
@@ -79,7 +87,8 @@ router.post('/login', [
       }
     }
     const authtoken = jwt.sign(data, JWT_SECRETE);
-    res.json(authtoken)
+    success = true;
+    res.json({ success, authtoken })
   } catch (error) {
     console.error(error.message);
     res.status(500).send("internal servaer error")
