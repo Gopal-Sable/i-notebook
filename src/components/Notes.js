@@ -4,7 +4,8 @@ import noteContext from "../context/notes/noteContext.js"
 import AddNote from './AddNote.js';
 import NoteItem from './NoteItem.js';
 
-function Notes() {
+const Notes=(props)=> {
+    const {showAlert}=props;
     const context = useContext(noteContext);
     // eslint-disable-next-line 
     const { notes, showNotes, editNote } = context;
@@ -18,7 +19,6 @@ function Notes() {
 
     const updateNote = (currentNote) => {
         ref.current.click();
-        // setNote({id:currentNote._id,title:currentNote.title,description:currentNote.description,tag:currentNote.tag});
         setNote({ id: currentNote._id, title: currentNote.title, description: currentNote.description, tag: currentNote.tag })
 
     }
@@ -34,11 +34,11 @@ function Notes() {
         // console.log("updating...", note);
         editNote(note.id, note.title, note.description, note.tag)
         refClose.current.click();
-        // addNote(note.title, note.description, note.tag);
+        showAlert("updated Successfully","success")
     }
     return (
         <>
-            <AddNote />
+            <AddNote showAlert={showAlert}/>
             {/* <!-- Button trigger modal --> */}
             <button type="button" className="d-none btn btn-primary" ref={ref} data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Launch demo modal
@@ -84,8 +84,8 @@ function Notes() {
                 <div className="container mx-3">
                     {notes.length === 0 && "No notes to disply"}
                 </div>
-                {notes.map((notes) => {
-                    return <NoteItem key={notes._id} updateNote={updateNote} note={notes} />;
+                {notes.map((note) => {
+                    return <NoteItem key={note._id} showAlert={showAlert} updateNote={updateNote} note={note} />;
                 })}
 
 
